@@ -1,32 +1,31 @@
 package com.web.prj.controllers;
 
 import com.web.prj.dtos.UserDTO;
+import com.web.prj.dtos.request.RegisterRequest;
+import com.web.prj.services.AuthService;
 import com.web.prj.services.UserService;
+import com.web.prj.services.interfaces.IAuthService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/auth")
 public class AuthController {
-    private final UserService userService;
+    private final IAuthService authService;
 
-    public AuthController(UserService userService) {
-        this.userService = userService;
+    public AuthController(
+            IAuthService authService
+            ) {
+        this.authService = authService;
     }
 
-    @GetMapping("/public")
-    public ResponseEntity<List<UserDTO>> get(){
-        return ResponseEntity.ok(userService.findAll());
-    }
-
-    @PostMapping("/public")
-    public ResponseEntity<String> post(@RequestBody UserDTO userDTO){
-        userService.save(userDTO);
+    @PostMapping("/register")
+    public ResponseEntity<String> post(@RequestBody @Valid RegisterRequest request){
+        authService.register(request);
         return ResponseEntity.ok("Success");
     }
 }

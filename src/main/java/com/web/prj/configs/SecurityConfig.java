@@ -23,7 +23,7 @@ public class SecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
     private String secretKey;
     private final String[] WhiteList = {
-            "/login/**",
+            "/auth/**",
             "/public/**"
     };
 

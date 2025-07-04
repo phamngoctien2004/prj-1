@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -31,15 +32,17 @@ public class UserService implements ICrudService<UserDTO> {
                 .map(userMapper::toDTOFull)
                 .toList();
     }
-
     @Override
     public void save(UserDTO data) {
         User user = userMapper.toUser(data);
         userRepository.save(user);
     }
-
     @Override
     public void delete(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public boolean checkEmailExisted(String email){
+        return userRepository.findByEmail(email).isPresent();
     }
 }
