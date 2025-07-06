@@ -7,6 +7,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class EmailService {
     private final JavaMailSender mailSender;
 
-
+    @Async("emailExecutor")
     public void sendEmail(String email, String content, String subject) {
         try{
             // tạo đối tượng cho phép gửi email nhiều định dạng -> tạo từ mailSender (theo cấu hình gốc)
