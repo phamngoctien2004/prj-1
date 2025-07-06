@@ -4,6 +4,6 @@ import javax.crypto.SecretKey;
 import java.util.List;
 
 public interface ITokenService {
-    String generate(String subject, List<String> roles);
+    String generate(String subject, List<String> roles, int expiration);
     SecretKey encodeSecretKey();
 }

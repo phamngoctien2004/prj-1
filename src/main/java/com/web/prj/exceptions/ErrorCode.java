@@ -3,7 +3,11 @@ package com.web.prj.exceptions;
 import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
-    USER_EXISTED("USER_409", "Người dùng đã tồn tại", HttpStatus.CONFLICT);
+    USER_EXISTED("USER_409", "Người dùng đã tồn tại", HttpStatus.CONFLICT),
+    ROLE_NOT_FOUND("ROLE_404", "Không tìm thấy role", HttpStatus.NOT_FOUND),
+    OTP_INVALID("OTP_401", "Mã otp không chính xác", HttpStatus.UNAUTHORIZED),
+    SEND_EMAIL_FAILED("EMAIL_400", "Gửi email thất bại", HttpStatus.BAD_REQUEST);
+
     private final String code;
     private final String message;
     private final HttpStatus httpStatus;

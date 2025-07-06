@@ -1,6 +1,7 @@
 package com.web.prj.configs;
 
 import io.jsonwebtoken.io.Decoders;
+import org.apache.commons.codec.binary.Base32;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,7 +48,7 @@ public class SecurityConfig {
     @Bean
     JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withSecretKey(
-                new SecretKeySpec(Decoders.BASE64.decode(secretKey), "HmacSHA256")
+                new SecretKeySpec(new Base32().decode(secretKey), "HmacSHA256")
         ).build();
     }
 

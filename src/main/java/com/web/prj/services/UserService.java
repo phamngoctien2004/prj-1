@@ -16,13 +16,19 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class UserService implements ICrudService<UserDTO> {
+public class UserService implements ICrudService<UserDTO, User> {
     private final UserRepository userRepository;
+    private final RoleService roleService;
     private final IUserMapper userMapper;
 
-    public UserService(UserRepository userRepository, IUserMapper userMapper) {
+    public UserService(
+            UserRepository userRepository,
+            IUserMapper userMapper,
+            RoleService roleService
+    ) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.roleService = roleService;
     }
 
     @Override
@@ -33,16 +39,31 @@ public class UserService implements ICrudService<UserDTO> {
                 .toList();
     }
     @Override
-    public void save(UserDTO data) {
+    public void saveDTO(UserDTO data) {
         User user = userMapper.toUser(data);
         userRepository.save(user);
+    }
+
+    @Override
+    public void save(User data) {
+        userRepository.save(data);
     }
     @Override
     public void delete(Long id) {
         userRepository.deleteById(id);
     }
 
-    public boolean checkEmailExisted(String email){
-        return userRepository.findByEmail(email).isPresent();
+    public Optional<User> findByEmail(String email){
+        return userRepository.findByEmail(email);
+    }
+    public User createUser(String email){
+        User user = new User();
+        user.setEmail(email);
+        user.setCode("USER_" + email);
+        user.setRole(roleService.findByCode("USER"));
+        return userRepository.save(user);
+    }
+    public UserDTO toDto(User user){
+        return userMapper.toDTOFull(user);
     }
 }

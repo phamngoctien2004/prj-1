@@ -20,9 +20,9 @@ public class JwtService implements ITokenService {
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
     private String secretKey;
     @Override
-    public String generate(String subject, List<String> roles){
+    public String generate(String subject, List<String> roles, int expiration){
         Instant now = Instant.now();
-        Instant expiry = now.plus(2, ChronoUnit.MINUTES);
+        Instant expiry = now.plus(expiration, ChronoUnit.MINUTES);
         return Jwts.builder()
                 .setSubject(subject)
                 .setIssuer("TIEN-DEV-JAVA")

@@ -2,10 +2,11 @@ package com.web.prj.services.interfaces;
 
 import java.util.List;
 
-public interface ICrudService<T>{
+public interface ICrudService<T, R>{
     List<T> findAll();
 
-    void save(T data);
+    void saveDTO(T data);
+    void save(R data);
 
     void delete(Long id);
 }
