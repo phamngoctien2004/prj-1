@@ -1,21 +1,21 @@
 package com.web.prj.services;
 
+import com.web.prj.Helpers.HttpHelper;
 import com.web.prj.Helpers.OtpHelper;
+import com.web.prj.dtos.request.GoogleRequest;
 import com.web.prj.dtos.request.LoginRequest;
 import com.web.prj.dtos.response.ApiResponse;
+import com.web.prj.dtos.response.GoogleResponse;
 import com.web.prj.dtos.response.LoginResponse;
-import com.web.prj.entities.Role;
 import com.web.prj.entities.User;
 import com.web.prj.exceptions.AppException;
 import com.web.prj.exceptions.ErrorCode;
 import com.web.prj.services.interfaces.IAuthService;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Duration;
@@ -64,12 +64,16 @@ public class AuthService implements IAuthService {
             throw new AppException(ErrorCode.OTP_INVALID);
         }
         Optional<User> oUser = userService.findByEmail(request.getEmail());
-        User user = oUser.orElseGet(() -> userService.createUser(request.getEmail()));
+        User user = oUser.orElseGet(() -> {
+            User u = new User();
+            u.setEmail(request.getEmail());
+            return userService.createUser(u);
+        });
 
         return ApiResponse.<LoginResponse>builder()
-                .code("200")
                 .success(true)
                 .data(toLoginResponse(user))
+                .message("Đăng nhập thành công")
                 .build();
     }
 
@@ -77,11 +81,7 @@ public class AuthService implements IAuthService {
     public ApiResponse<String> sendOtp(String email) {
         String otp = OtpHelper.generateTOTP(secretKey);
         saveOtpRedis(email, otp);
-
         sendOtpMail(email, otp);
-
-
-
         return ApiResponse.<String>builder()
                 .data(otp)
                 .message("otp đã được gửi vào email - " + email)
@@ -104,6 +104,40 @@ public class AuthService implements IAuthService {
                 .toUriString();
 
         return new ApiResponse<>("200",url,null, true, "Tạo link thành công");
+    }
+
+    @Override
+    public GoogleResponse getUserInfo(String code) {
+        GoogleRequest googleRequest = GoogleRequest.builder()
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .code(code)
+                .redirectUri(redirectURI)
+                .grantType("authorization_code")
+                .build();
+        GoogleResponse googleResponse = HttpHelper.post(googleRequest);
+        String accessToken = googleResponse.getAccess_token();
+
+        return HttpHelper.get(accessToken);
+    }
+
+    @Override
+    public ApiResponse<LoginResponse> loginGoogle(GoogleResponse userInfo) {
+        Optional<User> oUser = userService.findByEmail(userInfo.getEmail());
+
+        User user = oUser.orElseGet(() -> {
+            User u = new User();
+            u.setEmail(userInfo.getEmail());
+            u.setName(userInfo.getName());
+            u.setAvatar(userInfo.getPicture());
+            return userService.createUser(u);
+        });
+
+        return ApiResponse.<LoginResponse>builder()
+                .data(toLoginResponse(user))
+                .success(true)
+                .message("Đăng nhập thành công")
+                .build();
     }
 
     public void saveOtpRedis(String email, String otp){

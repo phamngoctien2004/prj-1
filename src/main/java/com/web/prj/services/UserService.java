@@ -56,10 +56,12 @@ public class UserService implements ICrudService<UserDTO, User> {
     public Optional<User> findByEmail(String email){
         return userRepository.findByEmail(email);
     }
-    public User createUser(String email){
+    public User createUser(User data){
         User user = new User();
-        user.setEmail(email);
-        user.setCode("USER_" + email);
+        user.setEmail(data.getEmail());
+        user.setCode("USER_" + data.getEmail());
+        user.setName(data.getName());
+        user.setAvatar(data.getAvatar());
         user.setRole(roleService.findByCode("USER"));
         return userRepository.save(user);
     }
