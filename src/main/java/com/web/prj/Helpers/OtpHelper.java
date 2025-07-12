@@ -1,7 +1,10 @@
 package com.web.prj.Helpers;
 
+import org.apache.commons.codec.binary.Base32;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.SecureRandom;
 import java.util.stream.IntStream;
 
 public class OtpHelper {
@@ -76,7 +79,12 @@ public class OtpHelper {
 
         return decoded.toString();
     }
-
+    public static String generateSecretKey(){
+        byte[] buffer = new byte[20];
+        new SecureRandom().nextBytes(buffer);
+        Base32 base32 = new Base32();
+        return base32.encodeToString(buffer);
+    }
     public static String generateTOTP(String secretKey, long timeInterval) {
         try {
             byte[] decodedKey = decodeBase32(secretKey).getBytes();
@@ -132,8 +140,8 @@ public class OtpHelper {
         }
     }
 
-    public static String generateTOTP(String secretKey) {
-        long timeInterval = System.currentTimeMillis() / 1000 / TIME_STEP;
+    public static String generateTOTP(String secretKey, String time) {
+        long timeInterval = Long.parseLong(time) / 1000 / TIME_STEP;
         return generateTOTP(secretKey, timeInterval);
     }
 
@@ -150,24 +158,23 @@ public class OtpHelper {
         return false;
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        String orginalSecretKey = "IForgotMyPassword"; // :)
-        String encodedSecretKey = encodeBase32(orginalSecretKey);
-        String decodedSecretKey = decodeBase32(encodedSecretKey);
-
-        System.out.println("Original String : " + orginalSecretKey);
-        System.out.println("Base32 Encoded String: " + encodedSecretKey);
-        System.out.println("Base32 Decoded String: " + decodedSecretKey);
-
-        String secret = encodedSecretKey; // This should be Base32 encoded
-        String freshTOTP = generateTOTP(secret);
-        System.out.println("Generated TOTP: " + freshTOTP);
-        System.out.println("Is valid? " + validateTOTP(secret, freshTOTP));
-
-        Thread.sleep(120000); // 2 minutes waiting
-        System.out.println("Is valid? " + validateTOTP(secret, freshTOTP));
-    }
-
+//    public static void main(String[] args) throws InterruptedException {
+//        String orginalSecretKey = "IForgotMyPassword"; // :)
+//        String encodedSecretKey = encodeBase32(orginalSecretKey);
+//        String decodedSecretKey = decodeBase32(encodedSecretKey);
+//
+//        System.out.println("Original String : " + orginalSecretKey);
+//        System.out.println("Base32 Encoded String: " + encodedSecretKey);
+//        System.out.println("Base32 Decoded String: " + decodedSecretKey);
+//
+//        String secret = encodedSecretKey; // This should be Base32 encoded
+//        String freshTOTP = generateTOTP(secret);
+//        System.out.println("Generated TOTP: " + freshTOTP);
+//        System.out.println("Is valid? " + validateTOTP(secret, freshTOTP));
+//
+//        Thread.sleep(120000); // 2 minutes waiting
+//        System.out.println("Is valid? " + validateTOTP(secret, freshTOTP));
+//    }
 
     public static String emailContent = """
             <!DOCTYPE html>

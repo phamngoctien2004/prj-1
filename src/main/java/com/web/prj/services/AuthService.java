@@ -19,9 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -59,8 +57,9 @@ public class AuthService implements IAuthService {
     public ApiResponse<LoginResponse> login(LoginRequest request) {
         String key = "otp:" + request.getEmail();
         Object value = redisTemplate.opsForValue().get(key);
-//        kieerm tra otp
-        if(!request.getOtp().equals(value)){
+
+//        kieerm tra otp ko hop le
+        if(!OtpHelper.validateTOTP(value.toString(), request.getOtp())){
             throw new AppException(ErrorCode.OTP_INVALID);
         }
         Optional<User> oUser = userService.findByEmail(request.getEmail());
@@ -79,11 +78,23 @@ public class AuthService implements IAuthService {
 
     @Override
     public ApiResponse<String> sendOtp(String email) {
-        String otp = OtpHelper.generateTOTP(secretKey);
-        saveOtpRedis(email, otp);
+//        kiem tra xem otp se duoc gui hay khong
+        String key = "otp:" + email;
+        Object value = redisTemplate.opsForValue().get(key);
+        if(value != null){
+            throw new AppException(ErrorCode.OTP_CANNOT_RESEND);
+        }
+//       sinh totp
+        String secretKey = OtpHelper.generateSecretKey();
+        String generatedTime = String.valueOf(System.currentTimeMillis());
+        String otp = OtpHelper.generateTOTP(secretKey, generatedTime);
+
+        saveOtpRedis(email, otp, secretKey);
         sendOtpMail(email, otp);
+
+
         return ApiResponse.<String>builder()
-                .data(otp)
+                .data(generatedTime)
                 .message("otp đã được gửi vào email - " + email)
                 .success(true)
                 .build();
@@ -140,9 +151,9 @@ public class AuthService implements IAuthService {
                 .build();
     }
 
-    public void saveOtpRedis(String email, String otp){
+    public void saveOtpRedis(String email, String otp, String secretKey){
         String key = "otp:" + email;
-        redisTemplate.opsForValue().set(key, otp, Duration.ofMinutes(5));
+        redisTemplate.opsForValue().set(key, secretKey, Duration.ofMinutes(5));
     }
     public void sendOtpMail(String email, String otp){
         String content = OtpHelper.emailContent.replace("123456", otp);
