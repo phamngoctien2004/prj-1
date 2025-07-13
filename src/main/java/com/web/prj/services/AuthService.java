@@ -59,7 +59,7 @@ public class AuthService implements IAuthService {
         Object value = redisTemplate.opsForValue().get(key);
 
 //        kieerm tra otp ko hop le
-        if(!OtpHelper.validateTOTP(value.toString(), request.getOtp())){
+        if(value == null || !OtpHelper.validateTOTP(value.toString(), request.getOtp())){
             throw new AppException(ErrorCode.OTP_INVALID);
         }
         Optional<User> oUser = userService.findByEmail(request.getEmail());
@@ -68,6 +68,7 @@ public class AuthService implements IAuthService {
             u.setEmail(request.getEmail());
             return userService.createUser(u);
         });
+        redisTemplate.delete(key);
 
         return ApiResponse.<LoginResponse>builder()
                 .success(true)
@@ -166,6 +167,7 @@ public class AuthService implements IAuthService {
         response.setRole(user.getRole().getCode());
         response.setAccessToken(jwtService.generate(user.getEmail(), List.of("USER"), 5));
         response.setRefreshToken(jwtService.generate(user.getEmail(), List.of("USER"), 43200));
+
         return response;
     }
 }
