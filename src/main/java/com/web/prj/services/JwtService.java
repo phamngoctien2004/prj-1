@@ -20,7 +20,7 @@ public class JwtService implements ITokenService {
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
     private String secretKey;
     @Override
-    public String generate(String subject, List<String> roles, int expiration){
+    public String generate(String subject, String role, int expiration){
         Instant now = Instant.now();
         Instant expiry = now.plus(expiration, ChronoUnit.MINUTES);
         return Jwts.builder()
@@ -29,7 +29,7 @@ public class JwtService implements ITokenService {
                 .setAudience("localhost:8080")
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(expiry))
-                .claim("roles", roles)
+                .claim("role", role)
                 .signWith(encodeSecretKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

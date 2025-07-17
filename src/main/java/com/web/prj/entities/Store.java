@@ -11,25 +11,27 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "stores")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 @EntityListeners(AuditingEntityListener.class)
-public class Role {
+public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String roleId;
+    private String stoId;
 
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<User> users;
+    private String address;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Order> orders;
 
     @CreatedDate
     @Column(updatable = false)

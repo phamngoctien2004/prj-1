@@ -3,33 +3,38 @@ package com.web.prj.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "order_details")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 @EntityListeners(AuditingEntityListener.class)
-public class Role {
+public class OrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String roleId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pro_id")
+    private Product product;
 
     @Column(nullable = false)
-    private String name;
+    private Integer quantity;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<User> users;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
 
     @CreatedDate
     @Column(updatable = false)

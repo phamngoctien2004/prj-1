@@ -3,6 +3,7 @@ package com.web.prj.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,25 +12,40 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "products")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 @EntityListeners(AuditingEntityListener.class)
-public class Role {
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String roleId;
+    private String proId;
 
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<User> users;
+    private String description;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal unitPrice;
+
+    @Column(nullable = false)
+    private Boolean isCombo = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cat_id")
+    private Category category;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderDetail> orderDetails;
+
+    @ManyToOne
+    private Voucher voucher;
 
     @CreatedDate
     @Column(updatable = false)

@@ -5,28 +5,41 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
-@EqualsAndHashCode(callSuper = true)
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
-public class User extends BaseEntity{
+@EntityListeners(AuditingEntityListener.class)
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String code;
+    private String accountId;
     private String email;
-    private String password;
     protected String name;
     private String avatar;
     private String phone;
     private Gender gender;
     private LocalDate birth;
-    private boolean isActive;
+    private String address;
+    private Integer status; // 0 - Không hoạt động, 1 - Hoạt động
 
     @ManyToOne
+    @JoinColumn(name = "role_id")
     private Role role;
+
+    @CreatedDate
+    @Column(updatable = false)
+    protected LocalDateTime createdAt;
+
+    @LastModifiedDate
+    protected LocalDateTime updatedAt;
 }

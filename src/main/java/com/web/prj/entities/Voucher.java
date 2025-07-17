@@ -1,8 +1,6 @@
 package com.web.prj.entities;
 
-import jakarta.persistence.*;
-import lombok.*;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -10,26 +8,40 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import jakarta.persistence.*;
+import lombok.*;
+
 @Entity
-@Table(name = "roles")
+@Table(name = "vouchers")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 @EntityListeners(AuditingEntityListener.class)
-public class Role {
+public class Voucher {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String roleId;
+    private String vouId;
 
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<User> users;
+    private String conditionApply;
+
+    private Double limitPrice;
+
+    private LocalDate startDate;
+
+    private LocalDate endDate;
+
+    @OneToMany(mappedBy = "voucher")
+    private List<Order> orders;
+
+    @OneToMany(mappedBy = "voucher")
+    private List<Product> products;
 
     @CreatedDate
     @Column(updatable = false)

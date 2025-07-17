@@ -9,7 +9,6 @@ import com.web.prj.services.interfaces.ICrudService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RoleService implements ICrudService<RoleDTO, Role> {
@@ -40,7 +39,7 @@ public class RoleService implements ICrudService<RoleDTO, Role> {
     }
 
     public Role findByCode(String code){
-        return roleRepository.findByCode(code)
+        return roleRepository.findByRoleId(code)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
     }
 

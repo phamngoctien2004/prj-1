@@ -18,7 +18,7 @@ import java.util.Date;
 public class UserDTO extends BaseDTO{
     private Long id;
     @NotBlank(message = "Mã người dùng không được trống")
-    private String code;
+    private String accountId;
     @NotBlank
     @Email(message = "Email không hợp lệ")
     private String email;
@@ -34,5 +34,5 @@ public class UserDTO extends BaseDTO{
 
     private LocalDate birth;
     private String avatar;
-
+    private String roleName;
 }

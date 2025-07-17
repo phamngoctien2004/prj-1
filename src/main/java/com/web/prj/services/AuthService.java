@@ -47,7 +47,6 @@ public class AuthService implements IAuthService {
 
     private String urlBase = "https://accounts.google.com/o/oauth2/v2/auth";
 
-
     private final UserService userService;
     private final JwtService jwtService;
     private final EmailService emailService;
@@ -58,8 +57,8 @@ public class AuthService implements IAuthService {
         String key = "otp:" + request.getEmail();
         Object value = redisTemplate.opsForValue().get(key);
 
-//        kieerm tra otp ko hop le
-        if(value == null || !OtpHelper.validateTOTP(value.toString(), request.getOtp())){
+        // kieerm tra otp ko hop le
+        if (value == null || !OtpHelper.validateTOTP(value.toString(), request.getOtp())) {
             throw new AppException(ErrorCode.OTP_INVALID);
         }
         Optional<User> oUser = userService.findByEmail(request.getEmail());
@@ -79,20 +78,19 @@ public class AuthService implements IAuthService {
 
     @Override
     public ApiResponse<String> sendOtp(String email) {
-//        kiem tra xem otp se duoc gui hay khong
+        // kiem tra xem otp se duoc gui hay khong
         String key = "otp:" + email;
         Object value = redisTemplate.opsForValue().get(key);
-        if(value != null){
+        if (value != null) {
             throw new AppException(ErrorCode.OTP_CANNOT_RESEND);
         }
-//       sinh totp
+        // sinh totp
         String secretKey = OtpHelper.generateSecretKey();
         String generatedTime = String.valueOf(System.currentTimeMillis());
         String otp = OtpHelper.generateTOTP(secretKey, generatedTime);
 
         saveOtpRedis(email, otp, secretKey);
         sendOtpMail(email, otp);
-
 
         return ApiResponse.<String>builder()
                 .data(generatedTime)
@@ -115,7 +113,7 @@ public class AuthService implements IAuthService {
                 .build()
                 .toUriString();
 
-        return new ApiResponse<>("200",url,null, true, "Tạo link thành công");
+        return new ApiResponse<>("200", url, null, true, "Tạo link thành công");
     }
 
     @Override
@@ -152,21 +150,22 @@ public class AuthService implements IAuthService {
                 .build();
     }
 
-    public void saveOtpRedis(String email, String otp, String secretKey){
+    public void saveOtpRedis(String email, String otp, String secretKey) {
         String key = "otp:" + email;
         redisTemplate.opsForValue().set(key, secretKey, Duration.ofMinutes(5));
     }
-    public void sendOtpMail(String email, String otp){
+
+    public void sendOtpMail(String email, String otp) {
         String content = OtpHelper.emailContent.replace("123456", otp);
         emailService.sendEmail(email, content, "Mã xác thực otp");
     }
 
-    public LoginResponse toLoginResponse(User user){
+    public LoginResponse toLoginResponse(User user) {
         LoginResponse response = new LoginResponse();
         response.setUser(userService.toDto(user));
-        response.setRole(user.getRole().getCode());
-        response.setAccessToken(jwtService.generate(user.getEmail(), List.of("USER"), 5));
-        response.setRefreshToken(jwtService.generate(user.getEmail(), List.of("USER"), 43200));
+        response.setRole(user.getRole().getRoleId());
+        response.setAccessToken(jwtService.generate(user.getEmail(), "USER", 5));
+        response.setRefreshToken(jwtService.generate(user.getEmail(), "USER", 43200));
 
         return response;
     }

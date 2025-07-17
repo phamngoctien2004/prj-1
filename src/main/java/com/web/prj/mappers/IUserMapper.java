@@ -14,14 +14,12 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = "spring")
 public interface IUserMapper {
     UserDTO toDTO(User user);
+
     User toUser(UserDTO userDTO);
 
-    default UserDTO toDTOFull(User user){
+    default UserDTO toDTOFull(User user) {
         UserDTO userDTO = toDTO(user);
-        userDTO.setCreatedAt(user.getCreatedAt());
-        userDTO.setUpdatedAt(user.getUpdatedAt());
-        userDTO.setCreatedBy(userDTO.getCreatedBy());
-        userDTO.setUpdatedBy(user.getUpdatedBy());
+        userDTO.setRoleName(user.getRole().getRoleId());
         return userDTO;
     }
 

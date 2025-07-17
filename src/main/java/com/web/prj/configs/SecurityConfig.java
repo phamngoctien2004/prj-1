@@ -29,7 +29,8 @@ public class SecurityConfig {
     private String secretKey;
     private final String[] WhiteList = {
             "/auth/**",
-            "/public/**"
+            "/public/**",
+            "/user/**"
     };
 
     @Bean
@@ -52,7 +53,7 @@ public class SecurityConfig {
     @Bean
     JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withSecretKey(
-                new SecretKeySpec(new Base32().decode(secretKey), "HmacSHA256")
+                new SecretKeySpec(Decoders.BASE64.decode(secretKey), "HmacSHA256")
         ).build();
     }
 

@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
     USER_EXISTED("USER_409", "Người dùng đã tồn tại", HttpStatus.CONFLICT),
+    USER_NOT_FOUND("USER_404", "Người dùng không tồn tại", HttpStatus.NOT_FOUND),
     ROLE_NOT_FOUND("ROLE_404", "Không tìm thấy role", HttpStatus.NOT_FOUND),
     OTP_INVALID("OTP_401", "Mã otp không chính xác", HttpStatus.UNAUTHORIZED),
     OTP_CANNOT_RESEND("OTP_429", "Chưa được gửi lại otp", HttpStatus.TOO_MANY_REQUESTS),

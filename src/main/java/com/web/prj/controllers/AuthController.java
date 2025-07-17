@@ -25,7 +25,6 @@ public class AuthController {
         this.authService = authService;
     }
 
-
     @PostMapping("/send-otp")
     public ResponseEntity<?> sendOtp(@RequestBody @Valid OtpRequest request) {
 
@@ -48,11 +47,12 @@ public class AuthController {
     }
 
     @GetMapping("/google-url")
-    public ResponseEntity<?> generateLinkGoogleAuth(){
+    public ResponseEntity<?> generateLinkGoogleAuth() {
         return ResponseEntity.ok(authService.generateLink());
     }
+
     @GetMapping("/google/callback")
-    public ResponseEntity<?> callback(@RequestParam("code") String code){
+    public ResponseEntity<?> callback(@RequestParam("code") String code) {
         GoogleResponse googleResponse = authService.getUserInfo(code);
         ApiResponse<LoginResponse> response = authService.loginGoogle(googleResponse);
         ResponseCookie cookie = ResponseCookie.from("refresh_token", response.getData().getRefreshToken())
