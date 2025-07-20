@@ -1,6 +1,6 @@
-package com.web.prj.services;
+package com.web.prj.services.impl;
 
-import com.web.prj.services.interfaces.ITokenService;
+import com.web.prj.services.cores.TokenService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -12,10 +12,9 @@ import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.List;
 
 @Service
-public class JwtService implements ITokenService {
+public class JwtServiceImpl implements TokenService {
 
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
     private String secretKey;

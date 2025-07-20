@@ -1,35 +1,32 @@
 package com.web.prj.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name = "roles")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 @EntityListeners(AuditingEntityListener.class)
-public class Role {
+public class Warranty {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String roleId;
-
     @Column(nullable = false)
+    private String warrantyId;
     private String name;
-
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<User> users;
+    private String description;
+    private int monthWarranty;
 
     @CreatedDate
     @Column(updatable = false)
@@ -37,6 +34,4 @@ public class Role {
 
     @LastModifiedDate
     protected LocalDateTime updatedAt;
-    private boolean isDeleted;
-
 }

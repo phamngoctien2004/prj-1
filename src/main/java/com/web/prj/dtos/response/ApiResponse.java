@@ -18,4 +18,8 @@ public class ApiResponse<T> {
     private boolean success;
     private String message;
 
+    public ApiResponse(T data, String message) {
+        this.data = data;
+        this.message = message;
+    }
 }

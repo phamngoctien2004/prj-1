@@ -5,7 +5,7 @@ import com.web.prj.dtos.request.OtpRequest;
 import com.web.prj.dtos.response.ApiResponse;
 import com.web.prj.dtos.response.GoogleResponse;
 import com.web.prj.dtos.response.LoginResponse;
-import com.web.prj.services.interfaces.IAuthService;
+import com.web.prj.services.helpers.OtpService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -17,25 +17,26 @@ import java.time.Duration;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    private final IAuthService authService;
-
+    private final OtpService authService;
     public AuthController(
-            IAuthService authService
+            OtpService authService
     ) {
         this.authService = authService;
     }
 
     @PostMapping("/send-otp")
     public ResponseEntity<?> sendOtp(@RequestBody @Valid OtpRequest request) {
-
-        return ResponseEntity.ok(authService.sendOtp(request.getEmail()));
+        String response = authService.sendOtp(request.getEmail());
+        return ResponseEntity.ok(
+                new ApiResponse<>(response, "OTP sent successfully")
+        );
     }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestBody @Valid LoginRequest request) {
-        ApiResponse<LoginResponse> response = authService.login(request);
+        LoginResponse response = authService.login(request);
 
-        ResponseCookie cookie = ResponseCookie.from("refresh_token", response.getData().getRefreshToken())
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", response.getRefreshToken())
                 .httpOnly(true)
                 .path("/")
                 .maxAge(Duration.ofDays(30))
@@ -43,19 +44,19 @@ public class AuthController {
                 .build();
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(response);
+                .body(new ApiResponse<LoginResponse>(response, "Login successful"));
     }
 
     @GetMapping("/google-url")
     public ResponseEntity<?> generateLinkGoogleAuth() {
-        return ResponseEntity.ok(authService.generateLink());
+        return ResponseEntity.ok(new ApiResponse<>(authService.generateLink(), "Google authentication URL generated successfully"));
     }
 
     @GetMapping("/google/callback")
     public ResponseEntity<?> callback(@RequestParam("code") String code) {
         GoogleResponse googleResponse = authService.getUserInfo(code);
-        ApiResponse<LoginResponse> response = authService.loginGoogle(googleResponse);
-        ResponseCookie cookie = ResponseCookie.from("refresh_token", response.getData().getRefreshToken())
+        LoginResponse loginResponse = authService.loginGoogle(googleResponse);
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", loginResponse.getRefreshToken())
                 .httpOnly(true)
                 .path("/")
                 .maxAge(Duration.ofDays(30))
@@ -63,6 +64,6 @@ public class AuthController {
                 .build();
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(response);
+                .body(new ApiResponse<LoginResponse>(loginResponse, "Login successful"));
     }
 }

@@ -1,7 +1,8 @@
-package com.web.prj.services;
+package com.web.prj.services.impl;
 
 import com.web.prj.Helpers.HttpHelper;
 import com.web.prj.Helpers.OtpHelper;
+import com.web.prj.dtos.UserDTO;
 import com.web.prj.dtos.request.GoogleRequest;
 import com.web.prj.dtos.request.LoginRequest;
 import com.web.prj.dtos.response.ApiResponse;
@@ -10,7 +11,13 @@ import com.web.prj.dtos.response.LoginResponse;
 import com.web.prj.entities.User;
 import com.web.prj.exceptions.AppException;
 import com.web.prj.exceptions.ErrorCode;
-import com.web.prj.services.interfaces.IAuthService;
+import com.web.prj.mappers.mapper.UserMapper;
+import com.web.prj.services.cores.AuthService;
+import com.web.prj.services.cores.UserService;
+import com.web.prj.services.helpers.OtpService;
+import com.web.prj.services.impl.EmailServiceImpl;
+import com.web.prj.services.impl.JwtServiceImpl;
+import com.web.prj.services.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +31,7 @@ import java.util.*;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class AuthService implements IAuthService {
+public class AuthServiceImpl implements OtpService {
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
     private String secretKey;
 
@@ -48,12 +55,12 @@ public class AuthService implements IAuthService {
     private String urlBase = "https://accounts.google.com/o/oauth2/v2/auth";
 
     private final UserService userService;
-    private final JwtService jwtService;
-    private final EmailService emailService;
+    private final JwtServiceImpl jwtServiceImpl;
+    private final EmailServiceImpl emailService;
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public ApiResponse<LoginResponse> login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
         String key = "otp:" + request.getEmail();
         Object value = redisTemplate.opsForValue().get(key);
 
@@ -62,22 +69,25 @@ public class AuthService implements IAuthService {
             throw new AppException(ErrorCode.OTP_INVALID);
         }
         Optional<User> oUser = userService.findByEmail(request.getEmail());
+
         User user = oUser.orElseGet(() -> {
-            User u = new User();
-            u.setEmail(request.getEmail());
-            return userService.createUser(u);
+            UserDTO userDTO = new UserDTO();
+            userDTO.setEmail(request.getEmail());
+            return userService.createUser(userDTO);
         });
         redisTemplate.delete(key);
 
-        return ApiResponse.<LoginResponse>builder()
-                .success(true)
-                .data(toLoginResponse(user))
-                .message("Đăng nhập thành công")
+        String at = jwtServiceImpl.generate(user.getEmail(), "USER", 5);
+        String rt = jwtServiceImpl.generate(user.getEmail(), "USER", 43200);
+
+        return LoginResponse.builder()
+                .accessToken(at)
+                .refreshToken(rt)
                 .build();
     }
 
     @Override
-    public ApiResponse<String> sendOtp(String email) {
+    public String sendOtp(String email) {
         // kiem tra xem otp se duoc gui hay khong
         String key = "otp:" + email;
         Object value = redisTemplate.opsForValue().get(key);
@@ -92,16 +102,12 @@ public class AuthService implements IAuthService {
         saveOtpRedis(email, otp, secretKey);
         sendOtpMail(email, otp);
 
-        return ApiResponse.<String>builder()
-                .data(generatedTime)
-                .message("otp đã được gửi vào email - " + email)
-                .success(true)
-                .build();
+        return otp;
     }
 
     @Override
-    public ApiResponse<String> generateLink() {
-        String url = UriComponentsBuilder
+    public String generateLink() {
+        return UriComponentsBuilder
                 .fromPath(urlBase)
                 .queryParam("client_id", clientId)
                 .queryParam("redirect_uri", redirectURI)
@@ -112,8 +118,6 @@ public class AuthService implements IAuthService {
                 .queryParam("prompt", "consent")
                 .build()
                 .toUriString();
-
-        return new ApiResponse<>("200", url, null, true, "Tạo link thành công");
     }
 
     @Override
@@ -132,41 +136,37 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    public ApiResponse<LoginResponse> loginGoogle(GoogleResponse userInfo) {
+    public LoginResponse loginGoogle(GoogleResponse userInfo) {
         Optional<User> oUser = userService.findByEmail(userInfo.getEmail());
 
         User user = oUser.orElseGet(() -> {
-            User u = new User();
+            UserDTO u = new UserDTO();
             u.setEmail(userInfo.getEmail());
             u.setName(userInfo.getName());
             u.setAvatar(userInfo.getPicture());
             return userService.createUser(u);
         });
 
-        return ApiResponse.<LoginResponse>builder()
-                .data(toLoginResponse(user))
-                .success(true)
-                .message("Đăng nhập thành công")
+        String at = jwtServiceImpl.generate(user.getEmail(), "USER", 5);
+        String rt = jwtServiceImpl.generate(user.getEmail(), "USER", 43200);
+
+        return LoginResponse.builder()
+                .accessToken(at)
+                .refreshToken(rt)
                 .build();
+
     }
 
+    @Override
     public void saveOtpRedis(String email, String otp, String secretKey) {
         String key = "otp:" + email;
         redisTemplate.opsForValue().set(key, secretKey, Duration.ofMinutes(5));
     }
 
+    @Override
     public void sendOtpMail(String email, String otp) {
         String content = OtpHelper.emailContent.replace("123456", otp);
         emailService.sendEmail(email, content, "Mã xác thực otp");
     }
 
-    public LoginResponse toLoginResponse(User user) {
-        LoginResponse response = new LoginResponse();
-        response.setUser(userService.toDto(user));
-        response.setRole(user.getRole().getRoleId());
-        response.setAccessToken(jwtService.generate(user.getEmail(), "USER", 5));
-        response.setRefreshToken(jwtService.generate(user.getEmail(), "USER", 43200));
-
-        return response;
-    }
 }

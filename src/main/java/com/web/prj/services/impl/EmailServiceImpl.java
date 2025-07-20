@@ -1,4 +1,4 @@
-package com.web.prj.services;
+package com.web.prj.services.impl;
 
 import com.web.prj.exceptions.AppException;
 import com.web.prj.exceptions.ErrorCode;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class EmailService {
+public class EmailServiceImpl {
     private final JavaMailSender mailSender;
 
     @Async("emailExecutor")

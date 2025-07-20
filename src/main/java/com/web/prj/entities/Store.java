@@ -39,4 +39,6 @@ public class Store {
 
     @LastModifiedDate
     protected LocalDateTime updatedAt;
+    private boolean isDeleted;
+
 }

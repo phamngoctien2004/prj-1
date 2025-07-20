@@ -5,12 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class PageResponse<T>{
-    private T data;
+    private List<T> data;
     private int currentPage;
     private int totalPages;
     private long totalElement;

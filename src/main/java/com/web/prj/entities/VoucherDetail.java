@@ -41,4 +41,7 @@ public class VoucherDetail {
 
     @LastModifiedDate
     protected LocalDateTime updatedAt;
+
+    private boolean isDeleted;
+
 }

@@ -7,6 +7,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -31,10 +32,14 @@ public class User {
     private LocalDate birth;
     private String address;
     private Integer status; // 0 - Không hoạt động, 1 - Hoạt động
+    private boolean isDeleted;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @OneToMany(mappedBy = "user")
+    private List<VoucherDetail> voucherDetails;
 
     @CreatedDate
     @Column(updatable = false)
@@ -42,4 +47,5 @@ public class User {
 
     @LastModifiedDate
     protected LocalDateTime updatedAt;
+
 }

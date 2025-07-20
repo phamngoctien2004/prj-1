@@ -47,10 +47,15 @@ public class Product {
     @ManyToOne
     private Voucher voucher;
 
+    @ManyToOne
+    private Warranty warranty;
+
     @CreatedDate
     @Column(updatable = false)
     protected LocalDateTime createdAt;
 
     @LastModifiedDate
     protected LocalDateTime updatedAt;
+    private boolean isDeleted;
+
 }

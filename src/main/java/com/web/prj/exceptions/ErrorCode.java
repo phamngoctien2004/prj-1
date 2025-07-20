@@ -3,6 +3,7 @@ package com.web.prj.exceptions;
 import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
+    NOT_NULL("NOT_NULL_400", "Giá trị không xác định", HttpStatus.BAD_REQUEST),
     USER_EXISTED("USER_409", "Người dùng đã tồn tại", HttpStatus.CONFLICT),
     USER_NOT_FOUND("USER_404", "Người dùng không tồn tại", HttpStatus.NOT_FOUND),
     ROLE_NOT_FOUND("ROLE_404", "Không tìm thấy role", HttpStatus.NOT_FOUND),

@@ -1,9 +1,8 @@
-package com.web.prj.services.interfaces;
+package com.web.prj.services.cores;
 
 import javax.crypto.SecretKey;
-import java.util.List;
 
-public interface ITokenService {
+public interface TokenService {
     String generate(String subject, String role, int expiration);
     SecretKey encodeSecretKey();
 }
