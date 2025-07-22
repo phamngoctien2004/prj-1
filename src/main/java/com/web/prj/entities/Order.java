@@ -62,6 +62,4 @@ public class Order {
 
     @LastModifiedDate
     protected LocalDateTime updatedAt;
-    private boolean isDeleted;
-
 }

@@ -1,6 +1,6 @@
 package com.web.prj.mappers.Impl;
 
-import com.web.prj.dtos.UserDTO;
+import com.web.prj.dtos.dto.UserDTO;
 import com.web.prj.dtos.response.PageResponse;
 import com.web.prj.entities.User;
 import com.web.prj.mappers.mapstruct.MapstructUser;

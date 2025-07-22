@@ -1,5 +1,6 @@
 package com.web.prj.configs;
 
+import com.web.prj.services.auth.UserDetailsServiceImpl;
 import io.jsonwebtoken.io.Decoders;
 import org.apache.commons.codec.binary.Base32;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,10 +28,22 @@ public class SecurityConfig {
 
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
     private String secretKey;
+    private final UserDetailsServiceImpl userDetailsService;
+
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
     private final String[] WhiteList = {
             "/auth/**",
             "/public/**",
-            "/user/**"
+            "/user/**",
+            "/role/**",
+            "/permission/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/docs/**"
     };
 
     @Bean
@@ -46,6 +59,7 @@ public class SecurityConfig {
                                 .jwt(jwt -> jwt.decoder(jwtDecoder()))
                 )
                 .csrf(AbstractHttpConfigurer::disable)
+                .userDetailsService(userDetailsService)
                 .cors(Customizer.withDefaults())
                 .build();
     }

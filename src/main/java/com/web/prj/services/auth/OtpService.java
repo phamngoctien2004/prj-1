@@ -1,6 +1,6 @@
-package com.web.prj.services.helpers;
+package com.web.prj.services.auth;
 
-import com.web.prj.services.cores.AuthService;
+import com.web.prj.services.auth.AuthService;
 
 public interface OtpService extends AuthService {
     String sendOtp(String email);

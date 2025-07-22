@@ -15,7 +15,7 @@ public class ApiResponse<T> {
     private String code;
     private T data;
     private T errors;
-    private boolean success;
+    private boolean success = true;
     private String message;
 
     public ApiResponse(T data, String message) {

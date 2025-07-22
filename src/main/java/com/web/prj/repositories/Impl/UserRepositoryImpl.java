@@ -1,8 +1,7 @@
 package com.web.prj.repositories.Impl;
 
 import com.web.prj.entities.User;
-import com.web.prj.exceptions.AppException;
-import com.web.prj.repositories.Jpa.JpaUserRepository;
+import com.web.prj.repositories.Jpa.JpaUser;
 import com.web.prj.repositories.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +12,9 @@ import java.util.Optional;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
-    private final JpaUserRepository jpaUserRepository;
+    private final JpaUser jpaUserRepository;
 
-    public UserRepositoryImpl(JpaUserRepository jpaUserRepository) {
+    public UserRepositoryImpl(JpaUser jpaUserRepository) {
         this.jpaUserRepository = jpaUserRepository;
     }
 
@@ -30,8 +29,8 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Optional<User> findTopByOrderByIdDesc() {
-        return jpaUserRepository.findTopByOrderByIdDesc();
+    public Optional<Long> findMaxId() {
+        return jpaUserRepository.findMaxId();
     }
 
     @Override
@@ -40,8 +39,13 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void save(User user) {
-        jpaUserRepository.save(user);
+    public User save(User user) {
+        return jpaUserRepository.save(user);
+    }
+
+    @Override
+    public void delete(Long id) {
+        jpaUserRepository.deleteById(id);
     }
 
     // Additional methods specific to UserRepository can be added here

@@ -1,6 +1,6 @@
-package com.web.prj.services.impl;
+package com.web.prj.services.auth;
 
-import com.web.prj.services.cores.TokenService;
+import com.web.prj.services.auth.TokenService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;

@@ -1,12 +1,8 @@
 package com.web.prj.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -17,23 +13,31 @@ import java.time.LocalDateTime;
 @Builder
 @Data
 @EntityListeners(AuditingEntityListener.class)
-public class Warranty {
+
+public class GrantedPermission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String warrantyId;
-    private String name;
-    private String description;
-    private int monthWarranty;
+    @ManyToOne
+    private Role role;
+
+    @ManyToOne
+    private Permission permission;
 
     @CreatedDate
     @Column(updatable = false)
-    protected LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    protected LocalDateTime updatedAt;
 
+    @Override
+    public String toString() {
+        return "GrantedPermission{" +
+                "id=" + id +
+                ", role=" + role +
+                ", permission=" + permission +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 
 }

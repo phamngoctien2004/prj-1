@@ -11,8 +11,10 @@ public interface UserRepository{
     Optional<User> findById(Long id);
     Optional<User> findByEmail(String email);
 
-    Optional<User> findTopByOrderByIdDesc();
+    Optional<Long> findMaxId();
     Page<User> findAll(Specification<User> spec, Pageable pageable);
 
-    void save(User user);
+    User save(User user);
+
+    void delete(Long id);
 }

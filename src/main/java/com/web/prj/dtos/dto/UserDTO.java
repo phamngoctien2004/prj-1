@@ -1,19 +1,15 @@
-package com.web.prj.dtos;
+package com.web.prj.dtos.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.web.prj.enums.Gender;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-@AllArgsConstructor
-@NoArgsConstructor
+
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -26,6 +22,7 @@ public class UserDTO{
     private String email;
 
 //    theem validator check phone
+    @Size(min = 10, max = 11, message = "Số điện thoại phải có độ dài từ 10 đến 11 ký tự")
     private String phone;
 
     @NotBlank(message = "Vui lòng nhập tên người dùng")
@@ -37,6 +34,7 @@ public class UserDTO{
     private LocalDate birth;
     private String avatar;
     private String roleName;
+    private boolean isDeleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

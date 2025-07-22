@@ -1,23 +1,18 @@
-package com.web.prj.services.impl;
+package com.web.prj.services.auth;
 
 import com.web.prj.Helpers.HttpHelper;
 import com.web.prj.Helpers.OtpHelper;
-import com.web.prj.dtos.UserDTO;
+import com.web.prj.dtos.dto.UserDTO;
 import com.web.prj.dtos.request.GoogleRequest;
 import com.web.prj.dtos.request.LoginRequest;
-import com.web.prj.dtos.response.ApiResponse;
 import com.web.prj.dtos.response.GoogleResponse;
 import com.web.prj.dtos.response.LoginResponse;
 import com.web.prj.entities.User;
 import com.web.prj.exceptions.AppException;
 import com.web.prj.exceptions.ErrorCode;
-import com.web.prj.mappers.mapper.UserMapper;
-import com.web.prj.services.cores.AuthService;
-import com.web.prj.services.cores.UserService;
-import com.web.prj.services.helpers.OtpService;
-import com.web.prj.services.impl.EmailServiceImpl;
-import com.web.prj.services.impl.JwtServiceImpl;
-import com.web.prj.services.impl.UserServiceImpl;
+import com.web.prj.repositories.repository.UserRepository;
+import com.web.prj.services.email.EmailServiceImpl;
+import com.web.prj.services.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,35 +21,37 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class AuthServiceImpl implements OtpService {
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
-    private String secretKey;
+    public String secretKey;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
-    private String clientId;
+    public String clientId;
 
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
-    private String clientSecret;
+    public String clientSecret;
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
-    private String redirectURI;
+    public String redirectURI;
 
     @Value("${spring.security.oauth2.client.registration.google.scope}")
-    private String scope;
+    public String scope;
 
     @Value("${spring.security.oauth2.client.provider.google.token-uri}")
-    private String tokenURI;
+    public String tokenURI;
 
     @Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
-    private String userInfoURI;
+    public String userInfoURI;
 
-    private String urlBase = "https://accounts.google.com/o/oauth2/v2/auth";
+    private final String urlBase = "https://accounts.google.com/o/oauth2/v2/auth";
 
     private final UserService userService;
+    private final UserRepository userRepository;
     private final JwtServiceImpl jwtServiceImpl;
     private final EmailServiceImpl emailService;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -68,11 +65,12 @@ public class AuthServiceImpl implements OtpService {
         if (value == null || !OtpHelper.validateTOTP(value.toString(), request.getOtp())) {
             throw new AppException(ErrorCode.OTP_INVALID);
         }
-        Optional<User> oUser = userService.findByEmail(request.getEmail());
+        Optional<User> oUser = userRepository.findByEmail(request.getEmail());
 
         User user = oUser.orElseGet(() -> {
-            UserDTO userDTO = new UserDTO();
-            userDTO.setEmail(request.getEmail());
+            UserDTO userDTO = UserDTO.builder()
+                    .email(request.getEmail())
+                    .build();
             return userService.createUser(userDTO);
         });
         redisTemplate.delete(key);
@@ -137,13 +135,14 @@ public class AuthServiceImpl implements OtpService {
 
     @Override
     public LoginResponse loginGoogle(GoogleResponse userInfo) {
-        Optional<User> oUser = userService.findByEmail(userInfo.getEmail());
+        Optional<User> oUser = userRepository.findByEmail(userInfo.getEmail());
 
         User user = oUser.orElseGet(() -> {
-            UserDTO u = new UserDTO();
-            u.setEmail(userInfo.getEmail());
-            u.setName(userInfo.getName());
-            u.setAvatar(userInfo.getPicture());
+            UserDTO u = UserDTO.builder()
+                    .email(userInfo.getEmail())
+                    .name(userInfo.getName())
+                    .avatar(userInfo.getPicture())
+                    .build();
             return userService.createUser(u);
         });
 

@@ -2,18 +2,20 @@ package com.web.prj.entities;
 
 import com.web.prj.enums.Gender;
 import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Entity
+@Table(name = "users")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -32,7 +34,6 @@ public class User {
     private LocalDate birth;
     private String address;
     private Integer status; // 0 - Không hoạt động, 1 - Hoạt động
-    private boolean isDeleted;
 
     @ManyToOne
     @JoinColumn(name = "role_id")

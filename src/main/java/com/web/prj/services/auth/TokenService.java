@@ -1,4 +1,4 @@
-package com.web.prj.services.cores;
+package com.web.prj.services.auth;
 
 import javax.crypto.SecretKey;
 

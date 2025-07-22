@@ -1,6 +1,6 @@
 package com.web.prj.mappers.mapper;
 
-import com.web.prj.dtos.UserDTO;
+import com.web.prj.dtos.dto.UserDTO;
 import com.web.prj.dtos.response.PageResponse;
 import com.web.prj.entities.User;
 import org.springframework.data.domain.Page;

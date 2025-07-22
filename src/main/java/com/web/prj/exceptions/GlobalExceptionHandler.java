@@ -50,4 +50,15 @@ public class GlobalExceptionHandler {
                 .build();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
+//    @ExceptionHandler(RuntimeException.class)
+//    public ResponseEntity<ApiResponse<String>> handleRuntimeException(RuntimeException ex) {
+//        ApiResponse<String> response = ApiResponse.<String>builder()
+//                .errors("500")
+//                .message("Internal Server Error: " + ex.getMessage())
+//                .success(false)
+//                .build();
+//
+//        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 }

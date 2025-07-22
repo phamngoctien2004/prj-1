@@ -5,7 +5,7 @@ import com.web.prj.dtos.request.OtpRequest;
 import com.web.prj.dtos.response.ApiResponse;
 import com.web.prj.dtos.response.GoogleResponse;
 import com.web.prj.dtos.response.LoginResponse;
-import com.web.prj.services.helpers.OtpService;
+import com.web.prj.services.auth.OtpService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;

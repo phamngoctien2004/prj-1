@@ -1,11 +1,16 @@
 package com.web.prj.controllers;
 
-import com.web.prj.dtos.UserDTO;
+import com.web.prj.dtos.dto.UserDTO;
 import com.web.prj.dtos.response.ApiResponse;
 import com.web.prj.dtos.response.PageResponse;
 import com.web.prj.entities.User;
+import com.web.prj.exceptions.AppException;
+import com.web.prj.exceptions.ErrorCode;
 import com.web.prj.mappers.mapper.UserMapper;
-import com.web.prj.services.impl.UserServiceImpl;
+import com.web.prj.repositories.repository.UserRepository;
+import com.web.prj.services.user.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -13,35 +18,31 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/user")
+@Tag(name = "Role", description = "Quản lý các quyền trong hệ thống")
 public class UserController {
 
-    private final UserServiceImpl userServiceImpl;
+    private final UserService userService;
     private final UserMapper userMapper;
-    public UserController(
-            UserServiceImpl userServiceImpl,
-            UserMapper userMapper
-    ) {
-        this.userServiceImpl = userServiceImpl;
-        this.userMapper = userMapper;
-    }
+    private final UserRepository userRepository;
 
     @GetMapping("/me")
     public ResponseEntity<?> myInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        UserDTO userDTO = userMapper.toDto(userServiceImpl.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email)));
+        UserDTO userDTO = userMapper.toDto(
+                userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND))
+        );
         return ResponseEntity.ok(userDTO);
     }
 
     @GetMapping
     public ResponseEntity<?> getAll(Pageable pageable, @RequestParam("filter") Optional<String> filter) {
-        Page<User> page = userServiceImpl.findAllByPageAndFilter(pageable, filter);
+        Page<User> page = userService.findAllByPageAndFilter(pageable, filter);
         ApiResponse<PageResponse<UserDTO>> response = ApiResponse.<PageResponse<UserDTO>>builder()
                 .code("200")
                 .message("Lấy dữ liệu thành công")
@@ -53,7 +54,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody UserDTO userDTO) {
-        UserDTO createdUser = userMapper.toDto(userServiceImpl.createUser(userDTO));
+        UserDTO createdUser = userMapper.toDto(userService.createUser(userDTO));
         ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder()
                 .code("201")
                 .message("Tạo người dùng thành công")
@@ -64,7 +65,9 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable("id") Long id){
-        UserDTO user = userMapper.toDto(userServiceImpl.findById(id));
+        UserDTO user = userMapper.toDto(
+                userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND))
+        );
         ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder()
                 .code("200")
                 .data(user)
@@ -75,7 +78,7 @@ public class UserController {
 
     @PutMapping
     public ResponseEntity<?> update(@RequestBody UserDTO userDTO){
-        UserDTO updatedUser = userMapper.toDto(userServiceImpl.updateUser(userDTO));
+        UserDTO updatedUser = userMapper.toDto(userService.updateUser(userDTO));
         ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder()
                 .code("200")
                 .message("Cập nhật người dùng thành công")
@@ -86,7 +89,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long id) {
-        userServiceImpl.deleteUser(id);
+        userService.deleteUser(id);
         ApiResponse<String> response = ApiResponse.<String>builder()
                 .code("200")
                 .message("Xoá người dùng thành công")

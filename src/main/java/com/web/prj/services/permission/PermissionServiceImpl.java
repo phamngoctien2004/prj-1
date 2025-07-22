@@ -1,0 +1,89 @@
+package com.web.prj.services.permission;
+
+import com.web.prj.Helpers.SpecHelper;
+import com.web.prj.dtos.request.PermissionRequest;
+import com.web.prj.entities.GrantedPermission;
+import com.web.prj.entities.Permission;
+import com.web.prj.entities.Role;
+import com.web.prj.exceptions.AppException;
+import com.web.prj.exceptions.ErrorCode;
+import com.web.prj.repositories.repository.PermissionRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@AllArgsConstructor
+public class PermissionServiceImpl implements PermissionService {
+    private final PermissionRepository repository;
+
+    @Override
+    public Permission create(PermissionRequest input) {
+        String id = input.getModule() + "_" + input.getAction();
+
+        if(repository.findByPermissionId(id).isPresent()){
+            throw new AppException(ErrorCode.RECORD_EXISTED);
+        };
+        Permission permission = Permission.builder()
+                .permissionId(id.toLowerCase())
+                .name(input.getName())
+                .module(input.getModule())
+                .action(input.getAction())
+                .active(true)
+                .build();
+        return repository.save(permission);
+    }
+
+    @Override
+    public Permission update(PermissionRequest input) {
+        Permission permission = repository.findById(input.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.RECORD_NOTFOUND));
+
+        permission.setName(input.getName());
+        permission.setActive(input.isActive());
+        return repository.save(permission);
+    }
+
+
+    @Override
+    public void delete(Long id) {
+        Permission permission = repository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.RECORD_NOTFOUND));
+
+        if(!permission.getGrantedPermissions().isEmpty()){
+            throw new AppException(ErrorCode.RECORD_UNDELETED);
+        }
+
+        repository.delete(id);
+    }
+
+    @Override
+    public List<GrantedPermission> getGrantedByIds(List<Long> ids, Role role) {
+        if(ids == null || ids.isEmpty()) {
+            return null;
+        }
+        return ids.stream()
+                .map(id -> {
+                            Permission permission = repository.findById(id)
+                                    .orElseThrow(() -> new AppException(ErrorCode.RECORD_NOTFOUND));
+                            return GrantedPermission.builder()
+                                    .permission(permission)
+                                    .role(role)
+                                    .build();
+                        }
+                ).toList();
+    }
+    @Override
+    public Page<Permission> findAllByPageAndFilter(Pageable pageable, Optional<String> filter) {
+        Specification<Permission> specName = SpecHelper.<Permission>containField("name", filter.orElse(""));
+        Specification<Permission> specModule = SpecHelper.<Permission>containField("module", filter.orElse(""));
+        Specification<Permission> specAction = SpecHelper.<Permission>containField("action", filter.orElse(""));
+        Specification<Permission> spec = specName.or(specModule).or(specAction);
+        return repository.findAllPage(pageable, spec);
+    }
+}

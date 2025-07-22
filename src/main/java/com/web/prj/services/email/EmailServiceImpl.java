@@ -1,4 +1,4 @@
-package com.web.prj.services.impl;
+package com.web.prj.services.email;
 
 import com.web.prj.exceptions.AppException;
 import com.web.prj.exceptions.ErrorCode;
