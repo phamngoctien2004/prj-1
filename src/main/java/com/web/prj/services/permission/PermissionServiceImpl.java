@@ -2,14 +2,16 @@ package com.web.prj.services.permission;
 
 import com.web.prj.Helpers.SpecHelper;
 import com.web.prj.dtos.request.PermissionRequest;
+import com.web.prj.dtos.response.PageResponse;
+import com.web.prj.dtos.response.PermissionResponse;
 import com.web.prj.entities.GrantedPermission;
 import com.web.prj.entities.Permission;
 import com.web.prj.entities.Role;
 import com.web.prj.exceptions.AppException;
 import com.web.prj.exceptions.ErrorCode;
+import com.web.prj.mappers.mapper.PermissionMapper;
 import com.web.prj.repositories.repository.PermissionRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -21,14 +23,15 @@ import java.util.Optional;
 @AllArgsConstructor
 public class PermissionServiceImpl implements PermissionService {
     private final PermissionRepository repository;
+    private final PermissionMapper permissionMapper;
 
     @Override
-    public Permission create(PermissionRequest input) {
+    public PermissionResponse create(PermissionRequest input) {
         String id = input.getModule() + "_" + input.getAction();
 
-        if(repository.findByPermissionId(id).isPresent()){
+        if (repository.findByPermissionId(id).isPresent()) {
             throw new AppException(ErrorCode.RECORD_EXISTED);
-        };
+        }
         Permission permission = Permission.builder()
                 .permissionId(id.toLowerCase())
                 .name(input.getName())
@@ -36,17 +39,17 @@ public class PermissionServiceImpl implements PermissionService {
                 .action(input.getAction())
                 .active(true)
                 .build();
-        return repository.save(permission);
+        return permissionMapper.toResponse(repository.save(permission));
     }
 
     @Override
-    public Permission update(PermissionRequest input) {
+    public PermissionResponse update(PermissionRequest input) {
         Permission permission = repository.findById(input.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.RECORD_NOTFOUND));
 
         permission.setName(input.getName());
         permission.setActive(input.isActive());
-        return repository.save(permission);
+        return permissionMapper.toResponse(repository.save(permission));
     }
 
 
@@ -55,7 +58,7 @@ public class PermissionServiceImpl implements PermissionService {
         Permission permission = repository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.RECORD_NOTFOUND));
 
-        if(!permission.getGrantedPermissions().isEmpty()){
+        if (!permission.getGrantedPermissions().isEmpty()) {
             throw new AppException(ErrorCode.RECORD_UNDELETED);
         }
 
@@ -64,7 +67,7 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public List<GrantedPermission> getGrantedByIds(List<Long> ids, Role role) {
-        if(ids == null || ids.isEmpty()) {
+        if (ids == null || ids.isEmpty()) {
             return null;
         }
         return ids.stream()
@@ -78,12 +81,15 @@ public class PermissionServiceImpl implements PermissionService {
                         }
                 ).toList();
     }
+
     @Override
-    public Page<Permission> findAllByPageAndFilter(Pageable pageable, Optional<String> filter) {
-        Specification<Permission> specName = SpecHelper.<Permission>containField("name", filter.orElse(""));
-        Specification<Permission> specModule = SpecHelper.<Permission>containField("module", filter.orElse(""));
-        Specification<Permission> specAction = SpecHelper.<Permission>containField("action", filter.orElse(""));
+    public PageResponse<PermissionResponse> findAllByPageAndFilter(Pageable pageable, Optional<String> filter) {
+        Specification<Permission> specName = SpecHelper.containField("name", filter.orElse(""));
+        Specification<Permission> specModule = SpecHelper.containField("module", filter.orElse(""));
+        Specification<Permission> specAction = SpecHelper.containField("action", filter.orElse(""));
         Specification<Permission> spec = specName.or(specModule).or(specAction);
-        return repository.findAllPage(pageable, spec);
+        return permissionMapper.toPageResponse(
+                repository.findAllPage(pageable, spec)
+        );
     }
 }

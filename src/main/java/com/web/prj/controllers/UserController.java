@@ -1,19 +1,15 @@
 package com.web.prj.controllers;
 
 import com.web.prj.dtos.dto.UserDTO;
+import com.web.prj.dtos.request.GrantRoleRequest;
 import com.web.prj.dtos.response.ApiResponse;
 import com.web.prj.dtos.response.PageResponse;
-import com.web.prj.entities.User;
-import com.web.prj.exceptions.AppException;
-import com.web.prj.exceptions.ErrorCode;
-import com.web.prj.mappers.mapper.UserMapper;
-import com.web.prj.repositories.repository.UserRepository;
 import com.web.prj.services.user.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -27,34 +23,33 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
-    private final UserMapper userMapper;
-    private final UserRepository userRepository;
 
     @GetMapping("/me")
     public ResponseEntity<?> myInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        UserDTO userDTO = userMapper.toDto(
-                userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND))
+        UserDTO userDTO = userService.getUserDetail(email);
+        return ResponseEntity.ok(
+                new ApiResponse<>(userDTO, "Lấy thông tin người dùng thành công")
         );
-        return ResponseEntity.ok(userDTO);
     }
 
     @GetMapping
     public ResponseEntity<?> getAll(Pageable pageable, @RequestParam("filter") Optional<String> filter) {
-        Page<User> page = userService.findAllByPageAndFilter(pageable, filter);
+
         ApiResponse<PageResponse<UserDTO>> response = ApiResponse.<PageResponse<UserDTO>>builder()
                 .code("200")
                 .message("Lấy dữ liệu thành công")
-                .data(userMapper.toPageResponse(page))
+                .data(userService.findAllByPageAndFilter(pageable, filter))
                 .build();
 
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('user_create')")
     public ResponseEntity<?> create(@RequestBody UserDTO userDTO) {
-        UserDTO createdUser = userMapper.toDto(userService.createUser(userDTO));
+        UserDTO createdUser = userService.createUser(userDTO);
         ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder()
                 .code("201")
                 .message("Tạo người dùng thành công")
@@ -63,11 +58,10 @@ public class UserController {
         return ResponseEntity.status(201).body(response);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable("id") Long id){
-        UserDTO user = userMapper.toDto(
-                userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND))
-        );
+    @GetMapping("/{email}")
+    @PreAuthorize("hasAuthority('user')")
+    public ResponseEntity<?> getEmailDetail(@PathVariable String email){
+        UserDTO user = userService.getUserDetail(email);
         ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder()
                 .code("200")
                 .data(user)
@@ -78,7 +72,7 @@ public class UserController {
 
     @PutMapping
     public ResponseEntity<?> update(@RequestBody UserDTO userDTO){
-        UserDTO updatedUser = userMapper.toDto(userService.updateUser(userDTO));
+        UserDTO updatedUser = userService.updateUser(userDTO);
         ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder()
                 .code("200")
                 .message("Cập nhật người dùng thành công")
@@ -94,6 +88,17 @@ public class UserController {
                 .code("200")
                 .message("Xoá người dùng thành công")
                 .data("1")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/grant-role")
+    public ResponseEntity<?> grantRole(@RequestBody GrantRoleRequest request) {
+        UserDTO updatedUser = userService.grantRole(request.getRoleId(), request.getUserId());
+        ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder()
+                .code("200")
+                .message("Cấp quyền thành công")
+                .data(updatedUser)
                 .build();
         return ResponseEntity.ok(response);
     }

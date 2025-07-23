@@ -4,9 +4,8 @@ import com.web.prj.dtos.request.RoleRequest;
 import com.web.prj.dtos.response.ApiResponse;
 import com.web.prj.dtos.response.PageResponse;
 import com.web.prj.dtos.response.RoleResponse;
-import com.web.prj.entities.Role;
-import com.web.prj.mappers.mapper.RoleMapper;
 import com.web.prj.services.role.RoleService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -19,19 +18,17 @@ import java.util.Optional;
 @RequestMapping("/role")
 public class RoleController {
     private final RoleService roleService;
-    private final RoleMapper roleMapper;
     @GetMapping
     public ResponseEntity<?> getRole(Pageable pageable, @RequestParam("filter") Optional<String> filter) {
-        PageResponse<RoleResponse> response = roleMapper
-                .toPageResponse(roleService.findAllByPageAndFilter(pageable, filter));
+        PageResponse<RoleResponse> response = roleService.findAllByPageAndFilter(pageable, filter);
         return ResponseEntity.ok(
                 new ApiResponse<PageResponse<RoleResponse>>(response, "Lấy dữ liệu thành công")
         );
     }
 
     @PostMapping
-    public ResponseEntity<?> createRole(@RequestBody RoleRequest request) {
-        RoleResponse response = roleMapper.toResponse(roleService.createRole(request));
+    public ResponseEntity<?> createRole(@RequestBody @Valid RoleRequest request) {
+        RoleResponse response = roleService.createRole(request);
         return ResponseEntity.ok(
                 new ApiResponse<RoleResponse>(response, "Tạo mới thành công")
         );
@@ -39,13 +36,12 @@ public class RoleController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getRoleById(@PathVariable Long id) {
-        Role role = roleService.getRoleDetail(id);
-        RoleResponse response = roleMapper.toResponse(role);
+        RoleResponse response = roleService.getRoleDetail(id);
         return ResponseEntity.ok(response);
     }
     @PutMapping
-    public ResponseEntity<?> updateRole(@RequestBody RoleRequest request) {
-        RoleResponse response = roleMapper.toResponse(roleService.updateRole(request));
+    public ResponseEntity<?> updateRole(@RequestBody @Valid RoleRequest request) {
+        RoleResponse response = roleService.updateRole(request);
         return ResponseEntity.ok(
                 new ApiResponse<RoleResponse>(response, "Cập nhật thành công")
         );

@@ -1,5 +1,6 @@
 package com.web.prj.dtos.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.web.prj.enums.Gender;
 import jakarta.validation.constraints.*;
@@ -15,7 +16,6 @@ import java.util.Date;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO{
     private Long id;
-    @NotBlank(message = "Mã người dùng không được trống")
     private String accountId;
     @NotBlank
     @Email(message = "Email không hợp lệ")
@@ -31,10 +31,12 @@ public class UserDTO{
     @NotNull(message = "Vui lòng chọn giới tính")
     private Gender gender;
 
+    @JsonFormat(pattern = "MM/dd/yyyy")
     private LocalDate birth;
     private String avatar;
+    private String address;
+    private Integer status;
     private String roleName;
-    private boolean isDeleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

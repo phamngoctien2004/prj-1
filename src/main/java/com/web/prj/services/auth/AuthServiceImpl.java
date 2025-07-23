@@ -27,7 +27,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class AuthServiceImpl implements OtpService {
+public class AuthServiceImpl implements VerifyService {
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
     public String secretKey;
 
@@ -66,22 +66,30 @@ public class AuthServiceImpl implements OtpService {
             throw new AppException(ErrorCode.OTP_INVALID);
         }
         Optional<User> oUser = userRepository.findByEmail(request.getEmail());
-
-        User user = oUser.orElseGet(() -> {
+        boolean isNewUser = false;
+        if(oUser.isEmpty()){
             UserDTO userDTO = UserDTO.builder()
                     .email(request.getEmail())
                     .build();
-            return userService.createUser(userDTO);
-        });
+            userService.createUser(userDTO);
+            isNewUser = true;
+        }
+//      xoa otp
         redisTemplate.delete(key);
 
-        String at = jwtServiceImpl.generate(user.getEmail(), "USER", 5);
-        String rt = jwtServiceImpl.generate(user.getEmail(), "USER", 43200);
+        String at = jwtServiceImpl.generate(request.getEmail(), "USER", 5);
+        String rt = jwtServiceImpl.generate(request.getEmail(), "USER", 43200);
 
         return LoginResponse.builder()
                 .accessToken(at)
                 .refreshToken(rt)
+                .newAccount(isNewUser)
                 .build();
+    }
+
+    @Override
+    public UserDTO register(UserDTO user) {
+        return null;
     }
 
     @Override
@@ -136,22 +144,23 @@ public class AuthServiceImpl implements OtpService {
     @Override
     public LoginResponse loginGoogle(GoogleResponse userInfo) {
         Optional<User> oUser = userRepository.findByEmail(userInfo.getEmail());
-
-        User user = oUser.orElseGet(() -> {
-            UserDTO u = UserDTO.builder()
+        boolean isNewUser = false;
+        if(oUser.isEmpty()){
+            UserDTO userDTO = UserDTO.builder()
                     .email(userInfo.getEmail())
                     .name(userInfo.getName())
                     .avatar(userInfo.getPicture())
                     .build();
-            return userService.createUser(u);
-        });
-
-        String at = jwtServiceImpl.generate(user.getEmail(), "USER", 5);
-        String rt = jwtServiceImpl.generate(user.getEmail(), "USER", 43200);
+            userService.createUser(userDTO);
+            isNewUser = true;
+        }
+        String at = jwtServiceImpl.generate(userInfo.getEmail(), "USER", 5);
+        String rt = jwtServiceImpl.generate(userInfo.getEmail(), "USER", 43200);
 
         return LoginResponse.builder()
                 .accessToken(at)
                 .refreshToken(rt)
+                .newAccount(isNewUser)
                 .build();
 
     }

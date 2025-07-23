@@ -9,6 +9,7 @@ import com.web.prj.exceptions.ErrorCode;
 import com.web.prj.mappers.mapper.PermissionMapper;
 import com.web.prj.repositories.repository.PermissionRepository;
 import com.web.prj.services.permission.PermissionService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +26,7 @@ public class PermissionController {
     private final PermissionRepository repository;
     @GetMapping
     public ResponseEntity<?> getPermission(Pageable pageable, Optional<String> filter) {
-        PageResponse<PermissionResponse> response = permissionMapper.toPageResponse(
-                service.findAllByPageAndFilter(pageable, filter)
-        );
+        PageResponse<PermissionResponse> response = service.findAllByPageAndFilter(pageable, filter);
 
         return ResponseEntity.ok(
                 new ApiResponse<>(response, "Lấy danh sách quyền thành công")
@@ -46,20 +45,17 @@ public class PermissionController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPermission(@RequestBody PermissionRequest request) {
-        PermissionResponse response = permissionMapper.toResponse(
-                service.create(request)
-        );
+    public ResponseEntity<?> createPermission(@RequestBody @Valid PermissionRequest request) {
+        PermissionResponse response = service.create(request);
         return ResponseEntity.ok(
                 new ApiResponse<>(response, "Tạo quyền thành công")
         );
     }
 
     @PutMapping
-    public ResponseEntity<?> updatePermission(@RequestBody PermissionRequest request) {
-        PermissionResponse response = permissionMapper.toResponse(
-                service.update(request)
-        );
+    public ResponseEntity<?> updatePermission(@RequestBody @Valid PermissionRequest request) {
+        PermissionResponse response = service.create(request);
+
         return ResponseEntity.ok(
                 new ApiResponse<>(response, "Cập nhật thành công")
         );

@@ -1,5 +1,6 @@
 package com.web.prj.configs;
 
+import com.web.prj.Helpers.CustomUserDetails;
 import com.web.prj.services.auth.UserDetailsServiceImpl;
 import io.jsonwebtoken.io.Decoders;
 import org.apache.commons.codec.binary.Base32;
@@ -10,6 +11,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -28,16 +30,15 @@ public class SecurityConfig {
 
     @Value("${spring.security.oauth2.resourceserver.jwt.secret-key}")
     private String secretKey;
-    private final UserDetailsServiceImpl userDetailsService;
+    private final CustomConverter jwtConverter;
 
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
-        this.userDetailsService = userDetailsService;
+    public SecurityConfig(CustomConverter jwtConverter) {
+        this.jwtConverter = jwtConverter;
     }
 
     private final String[] WhiteList = {
             "/auth/**",
             "/public/**",
-            "/user/**",
             "/role/**",
             "/permission/**",
             "/v3/api-docs/**",
@@ -55,11 +56,14 @@ public class SecurityConfig {
                                 .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(
-                        oauth2-> oauth2
-                                .jwt(jwt -> jwt.decoder(jwtDecoder()))
+                        oauth2 -> oauth2
+                                .jwt(
+                                        jwt -> jwt
+                                                .decoder(jwtDecoder())
+                                                .jwtAuthenticationConverter(jwtConverter)
+                                )
                 )
                 .csrf(AbstractHttpConfigurer::disable)
-                .userDetailsService(userDetailsService)
                 .cors(Customizer.withDefaults())
                 .build();
     }
@@ -72,21 +76,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-//        chuyển 1 roles trong jwt thành danh sách grantedAuthority
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-//      thay đổi mặc định từ SCOPE_ sang ROLE_
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("roles"); // Hoặc "scope" nếu dùng scope
-        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
-
-//      lưu lại converter mới đã custom
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-        return jwtAuthenticationConverter;
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource(){
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cors = new CorsConfiguration();
         cors.setAllowedOrigins(List.of("http://localhost:4200"));
         cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));

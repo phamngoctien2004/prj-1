@@ -33,7 +33,7 @@ public class User {
     private Gender gender;
     private LocalDate birth;
     private String address;
-    private Integer status; // 0 - Không hoạt động, 1 - Hoạt động
+    private Integer status = 1; // 0 - Không hoạt động, 1 - Hoạt động
 
     @ManyToOne
     @JoinColumn(name = "role_id")

@@ -1,6 +1,7 @@
 package com.web.prj.services.auth;
 
 import com.web.prj.services.auth.TokenService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -32,6 +33,24 @@ public class JwtServiceImpl implements TokenService {
                 .signWith(encodeSecretKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    @Override
+    public String refresh(String refreshToken) {
+        String subject = getClaims(refreshToken).getSubject();
+        String role = getClaims(refreshToken).get("role", String.class);
+
+        return generate(subject, role, 5);
+    }
+
+    @Override
+    public Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(encodeSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
     @Override
     public SecretKey encodeSecretKey() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
