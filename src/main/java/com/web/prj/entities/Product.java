@@ -37,6 +37,10 @@ public class Product {
     @Column(nullable = false)
     private Boolean isCombo = false;
 
+    private int quantity;
+    private int soldQuantity = 0;
+    private String image;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cat_id")
     private Category category;
