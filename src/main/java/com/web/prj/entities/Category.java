@@ -1,5 +1,6 @@
 package com.web.prj.entities;
 
+import com.web.prj.annotations.Code;
 import jakarta.persistence.*;
 import lombok.*;
 

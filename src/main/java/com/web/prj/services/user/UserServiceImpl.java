@@ -2,8 +2,9 @@ package com.web.prj.services.user;
 
 
 import com.web.prj.Helpers.SpecHelper;
-import com.web.prj.dtos.dto.UserDTO;
+import com.web.prj.dtos.request.UserRequest;
 import com.web.prj.dtos.response.PageResponse;
+import com.web.prj.dtos.response.UserResponse;
 import com.web.prj.entities.Role;
 import com.web.prj.entities.User;
 import com.web.prj.enums.ROLE;
@@ -13,7 +14,6 @@ import com.web.prj.mappers.mapper.UserMapper;
 import com.web.prj.repositories.repository.RoleRepository;
 import com.web.prj.repositories.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public UserDTO createUser(UserDTO input) {
+    public UserResponse createUser(UserRequest input) {
         Optional<User> existingUser = userRepository.findByEmail(input.getEmail());
 
         if (existingUser.isPresent()) {
@@ -48,23 +48,25 @@ public class UserServiceImpl implements UserService {
         );
 
 
-        return userMapper.toDto(userRepository.save(user));
+        return userMapper.toResponse(userRepository.save(user));
     }
 
 
     @Override
-    public UserDTO updateUser(UserDTO input) {
+    public UserResponse updateUser(UserRequest input) {
         User user = userRepository.findByEmail(input.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         user.setName(input.getName());
-        user.setAvatar(input.getAvatar());
+        if (input.getAvatar() != null && !input.getAvatar().isEmpty()) {
+            user.setAvatar(input.getAvatar());
+        }
         user.setGender(input.getGender());
         user.setBirth(input.getBirth());
         user.setPhone(input.getPhone());
-        user.setStatus(input.getStatus());
+        user.setActive(input.isActive());
         user.setAddress(input.getAddress());
-        return userMapper.toDto(userRepository.save(user));
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     @Override
@@ -74,26 +76,35 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(id);
     }
 
+
     @Override
-    public UserDTO getUserDetail(String email) {
+    public UserResponse getUserDetail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return userMapper.toDto(user);
+        return userMapper.toResponse(user);
     }
 
     @Override
-    public UserDTO grantRole(Long roleId, Long userId) {
+    public UserResponse grantRole(Long roleId, Long userId) {
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         user.setRole(role);
-        return userMapper.toDto(userRepository.save(user));
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     @Override
-    public PageResponse<UserDTO> findAllByPageAndFilter(Pageable pageable, Optional<String> filter) {
+    public UserResponse applyMember(Long memberId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        ;
+        return null;
+    }
+
+    @Override
+    public PageResponse<UserResponse> findAllByPageAndFilter(Pageable pageable, Optional<String> filter) {
         String filterValue = filter.orElse("");
 
         Specification<User> specName = SpecHelper.containField("name", filterValue);

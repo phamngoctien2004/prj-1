@@ -1,13 +1,10 @@
 package com.web.prj.mappers.Impl;
 
-import com.web.prj.dtos.dto.UserDTO;
-import com.web.prj.dtos.request.RoleRequest;
 import com.web.prj.dtos.response.PageResponse;
 import com.web.prj.dtos.response.RoleResponse;
 import com.web.prj.entities.Role;
 import com.web.prj.mappers.mapper.PermissionMapper;
 import com.web.prj.mappers.mapper.RoleMapper;
-import com.web.prj.mappers.mapstruct.MapstructPermission;
 import com.web.prj.mappers.mapstruct.MapstructRole;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;

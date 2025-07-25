@@ -1,9 +1,6 @@
 package com.web.prj.configs;
 
-import com.web.prj.Helpers.CustomUserDetails;
-import com.web.prj.services.auth.UserDetailsServiceImpl;
 import io.jsonwebtoken.io.Decoders;
-import org.apache.commons.codec.binary.Base32;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,11 +8,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -39,8 +33,14 @@ public class SecurityConfig {
     private final String[] WhiteList = {
             "/auth/**",
             "/public/**",
+            "/user/**",
             "/role/**",
             "/permission/**",
+            "/category/**",
+            "/product/**",
+            "/store/**",
+            "/voucher/**",
+            "/warranty/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",

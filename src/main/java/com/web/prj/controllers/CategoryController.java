@@ -2,6 +2,8 @@ package com.web.prj.controllers;
 
 import com.web.prj.dtos.request.CategoryRequest;
 import com.web.prj.dtos.response.ApiResponse;
+import com.web.prj.dtos.response.CategoryResponse;
+import com.web.prj.dtos.response.PageResponse;
 import com.web.prj.services.category.CategoryService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;

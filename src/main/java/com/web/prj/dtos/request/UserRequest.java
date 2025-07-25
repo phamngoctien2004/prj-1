@@ -1,4 +1,4 @@
-package com.web.prj.dtos.dto;
+package com.web.prj.dtos.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -8,13 +8,10 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 
 @Data
-@Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserDTO{
+public class UserRequest {
     private Long id;
     private String accountId;
     @NotBlank
@@ -35,8 +32,5 @@ public class UserDTO{
     private LocalDate birth;
     private String avatar;
     private String address;
-    private Integer status;
-    private String roleName;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private boolean active = true;
 }

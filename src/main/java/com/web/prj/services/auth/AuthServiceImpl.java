@@ -2,7 +2,7 @@ package com.web.prj.services.auth;
 
 import com.web.prj.Helpers.HttpHelper;
 import com.web.prj.Helpers.OtpHelper;
-import com.web.prj.dtos.dto.UserDTO;
+import com.web.prj.dtos.request.UserRequest;
 import com.web.prj.dtos.request.GoogleRequest;
 import com.web.prj.dtos.request.LoginRequest;
 import com.web.prj.dtos.response.GoogleResponse;
@@ -68,9 +68,8 @@ public class AuthServiceImpl implements VerifyService {
         Optional<User> oUser = userRepository.findByEmail(request.getEmail());
         boolean isNewUser = false;
         if(oUser.isEmpty()){
-            UserDTO userDTO = UserDTO.builder()
-                    .email(request.getEmail())
-                    .build();
+            UserRequest userDTO = new UserRequest();
+            userDTO.setEmail(request.getEmail());
             userService.createUser(userDTO);
             isNewUser = true;
         }
@@ -88,7 +87,7 @@ public class AuthServiceImpl implements VerifyService {
     }
 
     @Override
-    public UserDTO register(UserDTO user) {
+    public UserRequest register(UserRequest user) {
         return null;
     }
 
@@ -146,12 +145,10 @@ public class AuthServiceImpl implements VerifyService {
         Optional<User> oUser = userRepository.findByEmail(userInfo.getEmail());
         boolean isNewUser = false;
         if(oUser.isEmpty()){
-            UserDTO userDTO = UserDTO.builder()
-                    .email(userInfo.getEmail())
-                    .name(userInfo.getName())
-                    .avatar(userInfo.getPicture())
-                    .build();
-            userService.createUser(userDTO);
+            UserRequest userRequest = new UserRequest();
+            userRequest.setEmail(userInfo.getEmail());
+            userRequest.setName(userInfo.getName());
+            userRequest.setAvatar(userInfo.getPicture());
             isNewUser = true;
         }
         String at = jwtServiceImpl.generate(userInfo.getEmail(), "USER", 5);

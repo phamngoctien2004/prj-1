@@ -1,6 +1,6 @@
 package com.web.prj.controllers;
 
-import com.web.prj.dtos.dto.UserDTO;
+import com.web.prj.dtos.request.UserRequest;
 import com.web.prj.dtos.request.LoginRequest;
 import com.web.prj.dtos.request.OtpRequest;
 import com.web.prj.dtos.response.ApiResponse;
@@ -18,8 +18,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -55,7 +53,7 @@ public class AuthController {
     }
 
     @PostMapping("register-info")
-    public ResponseEntity<?> registerInfo(@RequestBody @Valid UserDTO request) {
+    public ResponseEntity<?> registerInfo(@RequestBody @Valid UserRequest request) {
         userService.updateUser(request);
         return ResponseEntity.ok("2");
     }

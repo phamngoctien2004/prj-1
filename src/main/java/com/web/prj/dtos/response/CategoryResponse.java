@@ -1,7 +1,10 @@
 package com.web.prj.dtos.response;
 
+import lombok.Data;
+
 import java.time.LocalDateTime;
 
+@Data
 public class CategoryResponse {
     private String id;
     private String catId;

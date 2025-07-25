@@ -1,7 +1,8 @@
 package com.web.prj.mappers.Impl;
 
-import com.web.prj.dtos.dto.UserDTO;
+import com.web.prj.dtos.request.UserRequest;
 import com.web.prj.dtos.response.PageResponse;
+import com.web.prj.dtos.response.UserResponse;
 import com.web.prj.entities.User;
 import com.web.prj.mappers.mapstruct.MapstructUser;
 import com.web.prj.mappers.mapper.UserMapper;
@@ -19,23 +20,23 @@ public class UserMapperImpl implements UserMapper {
         this.mapstructUser = mapstructUser;
     }
     @Override
-    public User toEntity(UserDTO dto) {
+    public User toEntity(UserRequest dto) {
         return mapstructUser.toEntity(dto);
     }
     @Override
-    public UserDTO toDto(User entity) {
-        UserDTO output = mapstructUser.toDto(entity);
-        output.setRoleName(entity.getRole().getRoleId());
+    public UserResponse toResponse(User entity) {
+        UserResponse output = mapstructUser.toResponse(entity);
+        output.setRoleId(entity.getRole().getRoleId());
         return output;
     }
 
     @Override
-    public PageResponse<UserDTO> toPageResponse(Page<User> page) {
-        List<UserDTO> content = page.getContent().stream()
-                .map(this::toDto)
+    public PageResponse<UserResponse> toPageResponse(Page<User> page) {
+        List<UserResponse> content = page.getContent().stream()
+                .map(this::toResponse)
                 .toList();
 
-        return PageResponse.<UserDTO>builder()
+        return PageResponse.<UserResponse>builder()
                 .data(content)
                 .currentPage(page.getNumber())
                 .totalPages(page.getTotalPages())

@@ -22,7 +22,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper mapper;
     @Override
     public CategoryResponse create(CategoryRequest request) {
-        String catId = request.getCatId().toLowerCase();
+        String catId = request.getCatId();
         if(repository.findByCategoryId(catId).isPresent()){
             throw new AppException(ErrorCode.RECORD_EXISTED);
         }
@@ -30,6 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .name(request.getName())
                 .description(request.getDescription())
                 .catId(catId)
+                .active(true)
                 .build();
 
         return mapper.toResponse(repository.save(category));

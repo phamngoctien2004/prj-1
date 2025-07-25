@@ -1,9 +1,10 @@
 package com.web.prj.controllers;
 
-import com.web.prj.dtos.dto.UserDTO;
 import com.web.prj.dtos.request.GrantRoleRequest;
+import com.web.prj.dtos.request.UserRequest;
 import com.web.prj.dtos.response.ApiResponse;
 import com.web.prj.dtos.response.PageResponse;
+import com.web.prj.dtos.response.UserResponse;
 import com.web.prj.services.user.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -28,7 +29,7 @@ public class UserController {
     public ResponseEntity<?> myInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        UserDTO userDTO = userService.getUserDetail(email);
+        UserResponse userDTO = userService.getUserDetail(email);
         return ResponseEntity.ok(
                 new ApiResponse<>(userDTO, "Lấy thông tin người dùng thành công")
         );
@@ -37,7 +38,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<?> getAll(Pageable pageable, @RequestParam("filter") Optional<String> filter) {
 
-        ApiResponse<PageResponse<UserDTO>> response = ApiResponse.<PageResponse<UserDTO>>builder()
+        ApiResponse<PageResponse<UserResponse>> response = ApiResponse.<PageResponse<UserResponse>>builder()
                 .code("200")
                 .message("Lấy dữ liệu thành công")
                 .data(userService.findAllByPageAndFilter(pageable, filter))
@@ -47,10 +48,10 @@ public class UserController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('user_create')")
-    public ResponseEntity<?> create(@RequestBody UserDTO userDTO) {
-        UserDTO createdUser = userService.createUser(userDTO);
-        ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder()
+//    @PreAuthorize("hasAuthority('user_create')")
+    public ResponseEntity<?> create(@RequestBody UserRequest userDTO) {
+        UserResponse createdUser = userService.createUser(userDTO);
+        ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
                 .code("201")
                 .message("Tạo người dùng thành công")
                 .data(createdUser)
@@ -61,8 +62,8 @@ public class UserController {
     @GetMapping("/{email}")
     @PreAuthorize("hasAuthority('user')")
     public ResponseEntity<?> getEmailDetail(@PathVariable String email){
-        UserDTO user = userService.getUserDetail(email);
-        ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder()
+        UserResponse user = userService.getUserDetail(email);
+        ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
                 .code("200")
                 .data(user)
                 .message("Lấy người dùng thành công")
@@ -71,9 +72,9 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<?> update(@RequestBody UserDTO userDTO){
-        UserDTO updatedUser = userService.updateUser(userDTO);
-        ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder()
+    public ResponseEntity<?> update(@RequestBody UserRequest userDTO){
+        UserResponse updatedUser = userService.updateUser(userDTO);
+        ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
                 .code("200")
                 .message("Cập nhật người dùng thành công")
                 .data(updatedUser)
@@ -94,8 +95,8 @@ public class UserController {
 
     @PutMapping("/grant-role")
     public ResponseEntity<?> grantRole(@RequestBody GrantRoleRequest request) {
-        UserDTO updatedUser = userService.grantRole(request.getRoleId(), request.getUserId());
-        ApiResponse<UserDTO> response = ApiResponse.<UserDTO>builder()
+        UserResponse updatedUser = userService.grantRole(request.getRoleId(), request.getUserId());
+        ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
                 .code("200")
                 .message("Cấp quyền thành công")
                 .data(updatedUser)

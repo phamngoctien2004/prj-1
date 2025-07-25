@@ -1,5 +1,6 @@
 package com.web.prj.dtos.request;
 
+import com.web.prj.annotations.Code;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -8,6 +9,7 @@ public class CategoryRequest {
     private Long id;
 
     @NotBlank
+    @Code
     private String catId;
 
     @NotBlank
