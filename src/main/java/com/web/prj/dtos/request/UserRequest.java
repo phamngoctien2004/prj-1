@@ -1,13 +1,14 @@
 package com.web.prj.dtos.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.web.prj.enums.Gender;
-import jakarta.validation.constraints.*;
-import lombok.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 
 @Data
@@ -33,4 +34,5 @@ public class UserRequest {
     private String avatar;
     private String address;
     private boolean active = true;
+    private Long roleId;
 }

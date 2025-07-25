@@ -53,6 +53,8 @@ public class Order {
     @ManyToOne
     private Voucher voucher;
 
+    @ManyToOne
+    private User user;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderDetail> orderDetails;
 

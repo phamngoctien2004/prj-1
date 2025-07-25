@@ -1,6 +1,5 @@
 package com.web.prj.controllers;
 
-import com.web.prj.dtos.request.GrantRoleRequest;
 import com.web.prj.dtos.request.UserRequest;
 import com.web.prj.dtos.response.ApiResponse;
 import com.web.prj.dtos.response.PageResponse;
@@ -93,16 +92,6 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/grant-role")
-    public ResponseEntity<?> grantRole(@RequestBody GrantRoleRequest request) {
-        UserResponse updatedUser = userService.grantRole(request.getRoleId(), request.getUserId());
-        ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
-                .code("200")
-                .message("Cấp quyền thành công")
-                .data(updatedUser)
-                .build();
-        return ResponseEntity.ok(response);
-    }
 //    @GetMapping("/export")
 //    public ResponseEntity<?> export() {
 //        List<UserDTO> users = userService.findAll();

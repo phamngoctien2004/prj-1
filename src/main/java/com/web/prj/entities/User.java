@@ -36,15 +36,14 @@ public class User {
     private boolean active = true; // 0 - Không hoạt động, 1 - Hoạt động
 
     @ManyToOne
-    @JoinColumn(name = "mem_id")
-    private Member member;
-    @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
 
     @OneToMany(mappedBy = "user")
     private List<VoucherDetail> voucherDetails;
 
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders;
     @CreatedDate
     @Column(updatable = false)
     protected LocalDateTime createdAt;

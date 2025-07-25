@@ -29,6 +29,11 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public boolean existsByPhone(String phone) {
+        return jpaUserRepository.existsByPhone(phone);
+    }
+
+    @Override
     public Optional<Long> findMaxId() {
         return jpaUserRepository.findMaxId();
     }

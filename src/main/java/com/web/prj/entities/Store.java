@@ -29,9 +29,13 @@ public class Store {
     private String name;
 
     private String address;
+    private boolean active = true;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Order> orders;
+
+    @ManyToOne
+    private User user;
 
     @CreatedDate
     @Column(updatable = false)

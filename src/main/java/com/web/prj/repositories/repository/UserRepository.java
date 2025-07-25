@@ -11,6 +11,7 @@ public interface UserRepository{
     Optional<User> findById(Long id);
     Optional<User> findByEmail(String email);
 
+    boolean existsByPhone(String phone);
     Optional<Long> findMaxId();
     Page<User> findAll(Specification<User> spec, Pageable pageable);
 

@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface JpaUser extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     Optional<User> findByEmail(String email);
 
+    boolean existsByPhone(String phone);
     @Query("select MAX(u.id) from User u")
     Optional<Long> findMaxId();
 

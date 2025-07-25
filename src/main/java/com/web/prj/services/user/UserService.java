@@ -10,10 +10,8 @@ import java.util.Optional;
 public interface UserService {
     UserResponse createUser(UserRequest user);
     UserResponse updateUser(UserRequest user);
-    UserResponse grantRole(Long roleId, Long userId);
     void deleteUser(Long id);
 
-    UserResponse applyMember(Long memberId, Long userId);
     UserResponse getUserDetail(String email);
     PageResponse<UserResponse> findAllByPageAndFilter(Pageable pageable, Optional<String> filter);
 

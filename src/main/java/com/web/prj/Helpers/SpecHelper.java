@@ -11,7 +11,11 @@ public class SpecHelper {
             );
         });
     }
-
+    public static <T> Specification<T> equal(String nameField, Number value) {
+        return ((root, query, criteriaBuilder) -> {
+            return criteriaBuilder.equal(root.get(nameField), value);
+        });
+    }
 //    public static <T> Specification<T> NotDeleted(){
 //        return ((root, query, criteriaBuilder) -> {
 //            return criteriaBuilder.isNull(root.get("deletedAt"));
